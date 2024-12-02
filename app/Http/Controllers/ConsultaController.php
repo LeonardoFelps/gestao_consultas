@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\consulta;
 use App\Http\Requests\StoreconsultaRequest;
 use App\Http\Requests\UpdateconsultaRequest;
+use Illuminate\Http\Request;
 
 class ConsultaController extends Controller
 {
@@ -30,11 +31,21 @@ class ConsultaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreconsultaRequest $request)
+    public function store(Request $request)
     {
-        //
+        // Recebe os dados enviados do formulário
+        $data = $request->all();
 
-        return ('store');
+        // Aqui você pode salvar os dados no banco de dados ou realizar outra lógica
+        return response()->json([
+            'message' => 'erro',
+            'data' => $data
+        ]);
+
+        return response()->json([
+            'message' => 'ok',
+            'data' => $data
+        ]);
     }
 
     /**

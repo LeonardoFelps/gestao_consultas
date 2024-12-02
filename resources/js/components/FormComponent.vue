@@ -94,9 +94,49 @@
     },
     methods: {
       // Submissão do formulário
-      submitForm() {
-        this.$emit("submit", this.formData);
-      },
+      async submitForm() {
+        try {
+          const response = await fetch('/store', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify(this.formData)
+          });
+
+          if (!response.ok) {
+            throw new Error('Erro ao enviar o formulário.');
+          }
+
+          // Obtenha a resposta em formato JSON
+          const data = await response.json();
+
+          // Exemplo: Você pode armazenar a resposta no estado do Vue (data)
+          this.responseData = data;
+          
+          // Acessar o retorno do servidor
+          console.log('Resposta do servidor:', data);
+          
+          // Caso precise, pode manipular o retorno da resposta
+          if (data.message === 'ok') {
+            console.log('Mensagem retornada:', data.message);
+            // Exibir uma mensagem de sucesso
+            alert('Formulário enviado com sucesso!');
+          } else{
+            console.log('Mensagem retornada:', data.message);
+            // Exibir uma mensagem de sucesso
+            alert('Horário indisponível. Por favor selecione outro!');
+          }
+
+        } catch (error) {
+          console.error(error);
+          alert('Ocorreu um erro ao enviar o formulário.');
+        }
+      },  
+
+
+    
       // Cancelar a operação
       cancelForm() {
         this.$emit("cancel");
