@@ -23,6 +23,7 @@ class ConsultaController extends Controller
     public function create()
     {
         //
+        return view('consultas.create');
     }
 
     /**

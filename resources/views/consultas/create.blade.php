@@ -4,7 +4,7 @@
 @section('conteudo')
 
 <div class="container">
-    <index-component></index-component>
+    <create-component></create-component>
 </div>
 
 @endsection
