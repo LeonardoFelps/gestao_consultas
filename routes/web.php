@@ -11,4 +11,5 @@ Auth::routes();
 
 Route::get('/', [App\Http\Controllers\ConsultaController::class, 'index'])->name('home');
 Route::get('/create', [App\Http\Controllers\ConsultaController::class, 'create'])->name('create');
+Route::post('/store', [App\Http\Controllers\ConsultaController::class, 'store'])->name('store');
 //Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

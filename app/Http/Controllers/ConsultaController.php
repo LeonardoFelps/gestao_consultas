@@ -23,7 +23,8 @@ class ConsultaController extends Controller
     public function create()
     {
         //
-        return view('consultas.create');
+        $medicos = ['Dr. Carlos', 'Dr. Pedro', 'Dr. Maia'];
+        return view('consultas.create', ['medicos' => $medicos]);
     }
 
     /**
@@ -32,6 +33,8 @@ class ConsultaController extends Controller
     public function store(StoreconsultaRequest $request)
     {
         //
+
+        return ('store');
     }
 
     /**

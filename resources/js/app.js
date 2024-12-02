@@ -21,8 +21,8 @@ app.component('example-component', ExampleComponent);
 import IndexComponent from './components/IndexComponent.vue';
 app.component('index-component', IndexComponent);
 
-import CreateComponent from './components/CreateComponent.vue';
-app.component('create-component', CreateComponent);
+import FormComponent from './components/FormComponent.vue';
+app.component('form-component', FormComponent);
 
 /**
  * The following block of code may be used to automatically register your
