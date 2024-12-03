@@ -9,7 +9,8 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/consulta', [App\Http\Controllers\ConsultaController::class, 'index'])->name('consulta.home');
+Route::get('/', [App\Http\Controllers\ConsultaController::class, 'index'])->name('consulta.home');
+Route::get('/consulta/relatorio', [App\Http\Controllers\ConsultaController::class, 'show'])->name('consulta.relatorios');
 Route::get('/consulta/create', [App\Http\Controllers\ConsultaController::class, 'create'])->name('consulta.create');
 Route::post('/consulta/store', [App\Http\Controllers\ConsultaController::class, 'store'])->name('consulta.store');
 Route::get('/consulta/{id}/edit', [App\Http\Controllers\ConsultaController::class, 'edit'])->name('consulta.edit');

@@ -18,4 +18,9 @@ class consulta extends Model
         
     ];
 
+    public function medico()
+    {
+        return $this->belongsTo(Medico::class, 'medico', 'id'); // Ajuste 'medico' e 'id' conforme sua base de dados
+    }
+
 }

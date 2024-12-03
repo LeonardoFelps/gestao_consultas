@@ -35,3 +35,11 @@ button.btn-secondary {
     background-color: #6c757d;
     color: white;
 }
+
+.pagination li{
+    display: inline;
+}
+
+.pagination ul{
+    list-style-type: none;
+}

@@ -44,6 +44,10 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('consulta.create') }}">{{ __('Nova Consulta') }}</a>
                             </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('consulta.relatorios') }}">{{ __('Relatorio') }}</a>
+                            </li>
                     </ul>
                 </div>
             </div>

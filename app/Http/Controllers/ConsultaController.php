@@ -19,13 +19,14 @@ class ConsultaController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-{
-    // Buscar todas as consultas
-    $consultas = Consulta::all(); // Você pode também aplicar filtros ou ordenação aqui se necessário
-
-    // Retornar a view passando as consultas
-    return view('consultas.index', compact('consultas'));
-}
+    {
+        // Definir o número de itens por página, por exemplo 10
+        $consultas = Consulta::paginate(5); // Você pode ajustar o número conforme necessário
+    
+        // Retornar a view passando as consultas paginadas
+        return view('consultas.index', compact('consultas'));
+    }
+    
 
 
     /**
@@ -90,10 +91,27 @@ class ConsultaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(consulta $consulta)
+    public function show(Consulta $consulta)
     {
-        //
+        $agendamentosPorPacienteEMedico = Consulta::select(Consulta::raw('DATE(dataehora) as dia'), 'paciente', 'medico', Consulta::raw('count(*) as total'))
+        ->groupBy(Consulta::raw('DATE(dataehora)'), 'paciente', 'medico')
+        ->orderBy(Consulta::raw('DATE(dataehora)'), 'asc')
+        ->get();
+
+        $agendamentosPorDia = Consulta::select(Consulta::raw('DATE(dataehora) as dia'), Consulta::raw('count(*) as total'))
+        ->groupBy(Consulta::raw('DATE(dataehora)'))
+        ->orderBy(Consulta::raw('DATE(dataehora)'), 'asc')
+        ->get();
+
+        // Retorna a view com os dados para o Blade
+        return view('consultas.relatorio', [
+            'agendamentosPorPacienteEMedico' => $agendamentosPorPacienteEMedico,
+            'agendamentosPorDia' => $agendamentosPorDia,
+        ]);
+        
     }
+    
+
 
     /**
      * Show the form for editing the specified resource.

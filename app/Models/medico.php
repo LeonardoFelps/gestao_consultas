@@ -10,4 +10,9 @@ class medico extends Model
         'nome',
         'especializacao'
     ];
+
+    public function consultas()
+    {
+        return $this->hasMany(Consulta::class, 'medico', 'id');
+    }
 }
