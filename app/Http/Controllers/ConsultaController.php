@@ -155,8 +155,12 @@ class ConsultaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(consulta $consulta)
+    public function destroy($id)
     {
-        //
+        $consulta = Consulta::findOrFail($id); // Encontra a consulta pelo ID
+        $consulta->delete(); // Deleta a consulta
+    
+        // Redireciona para a lista de consultas com uma mensagem de sucesso
+        return redirect()->route('consultas.index')->with('success', 'Consulta excluída com sucesso!');
     }
 }
