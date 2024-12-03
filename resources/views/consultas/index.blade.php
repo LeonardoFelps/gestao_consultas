@@ -34,11 +34,17 @@
                                 <td>{{ \Carbon\Carbon::parse($consulta->dataehora)->format('d/m/Y H:i') }}</td>
                                 <td>
                                     <!-- Botão para abrir o modal -->
-                                    <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalDescricao{{ $consulta->id }}">
+                                    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalDescricao{{ $consulta->id }}">
                                         Ver Descrição
-                                    </button>
-
-                                    
+                                    </button>                                    
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ route('consulta.destroy', $consulta->id) }}" style="display: inline;">
+                                                
+                                        @method('DELETE')
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger">Excluir</button>
+                                    </form>
                                 </td>
                             </tr>
 
@@ -56,12 +62,6 @@
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                                             <a href="{{ route('consulta.edit', $consulta->id) }}" class="btn btn-primary">Editar</a>
-                                            <form method="POST" action="{{ route('consulta.destroy', $consulta->id) }}" style="display: inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
-                                            </form>
-                                            
                                         </div>
                                     </div>
                                 </div>
@@ -69,6 +69,8 @@
                         @endforeach
                     </tbody>
                 </table>
+
+                
             </div>
         @endif
     </div>
