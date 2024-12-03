@@ -18,13 +18,24 @@ class ConsultaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Definir o número de itens por página, por exemplo 10
-        $consultas = Consulta::paginate(5); // Você pode ajustar o número conforme necessário
-    
-        // Retornar a view passando as consultas paginadas
-        return view('consultas.index', compact('consultas'));
+        $consultas = Consulta::query();
+
+    // Filtro por paciente
+    if ($request->has('paciente') && !empty($request->paciente)) {
+        $consultas->where('paciente', 'like', '%' . $request->paciente . '%');
+    }
+
+    // Filtro por médico
+    if ($request->has('medico') && !empty($request->medico)) {
+        $consultas->where('medico', 'like', '%' . $request->medico . '%');
+    }
+
+    // Paginação
+    $consultas = $consultas->paginate(5);
+
+    return view('consultas.index', compact('consultas'));
     }
     
 

@@ -16,6 +16,28 @@
                 Não há consultas agendadas.
             </div>
         @else
+            <form method="GET" action="{{ route('consulta.home') }}" class="mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" name="paciente" class="form-control" placeholder="Buscar por paciente" value="{{ request('paciente') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="medico" class="form-control" placeholder="Buscar por médico" value="{{ request('medico') }}">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                    </div>
+                </div>
+            </form>
+
+            @if(request('paciente') || request('medico'))
+                <div class="alert alert-info">
+                    <strong>Filtros Aplicados:</strong>
+                    @if(request('paciente')) <span>Paciente: {{ request('paciente') }}</span> @endif
+                    @if(request('medico')) <span>Médico: {{ request('medico') }}</span> @endif
+                </div>
+            @endif
+        
             <table class="table table-striped">
                 <thead>
                     <tr>
