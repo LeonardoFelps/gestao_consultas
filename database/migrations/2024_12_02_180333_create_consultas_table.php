@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('consultas', function (Blueprint $table) {
-            $table->id();
-            $table->string('medico');
-            $table->string('paciente');
-            $table->dateTime('dataehora');
-            $table->timestamps();
+            $table->id();            // Cria uma coluna de ID autoincrementável.
+            $table->string('medico'); // Cria a coluna 'medico', que armazena o nome do médico.
+            $table->string('paciente'); // Cria a coluna 'paciente', que armazena o nome do paciente.
+            $table->dateTime('dataehora'); // Cria a coluna 'dataehora', que armazena a data e hora da consulta.
+            $table->timestamps();     // Cria as colunas 'created_at' e 'updated_at' automaticamente.
         });
     }
 
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('consultas');
+        Schema::dropIfExists('consultas'); // Remove a tabela 'consultas' se ela existir.
     }
 };

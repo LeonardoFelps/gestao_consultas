@@ -14,45 +14,45 @@
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
     <!-- Scripts -->
-    @vite(['resources/sass/app.scss','resources/css/estilo-basico.css', 'resources/js/app.js'])
+    @vite(['resources/sass/app.scss', 'resources/css/estilo-basico.css', 'resources/js/app.js'])
 </head>
 <body>
     <div id="app">
+        <!-- Barra de navegação -->
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
+                <!-- Logotipo -->
                 <a class="navbar-brand" href="{{ route('consulta.home') }}">
-                    {{'Gestão de consultas' }}
+                    {{ 'Gestão de consultas' }}
                 </a>
+                <!-- Botão para colapsar navbar em telas menores -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
+                <!-- Links da Navbar -->
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
+                    <!-- Links do lado esquerdo (vazio neste caso) -->
+                    <ul class="navbar-nav me-auto"></ul>
 
-                    </ul>
-
-                    <!-- Right Side Of Navbar -->
+                    <!-- Links do lado direito -->
                     <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
-                            
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('consulta.home') }}">{{ __('Consultas') }}</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('consulta.create') }}">{{ __('Nova Consulta') }}</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('consulta.relatorios') }}">{{ __('Relatorio') }}</a>
-                            </li>
+                        <!-- Links de navegação -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('consulta.home') }}">{{ __('Consultas') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('consulta.create') }}">{{ __('Nova Consulta') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('consulta.relatorios') }}">{{ __('Relatório') }}</a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
 
+        <!-- Conteúdo principal -->
         <main class="py-4">
             @yield('conteudo')
         </main>

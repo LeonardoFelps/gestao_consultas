@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('consultas', function (Blueprint $table) {
-            $table->text('descricao')->nullable(); // Adiciona a coluna descricao
-        });
+            $table->text('descricao')->nullable(); // Adiciona a coluna descricao do tipo 'text', podendo ser nula
+        });        
     }
 
     public function down(): void
     {
         Schema::table('consultas', function (Blueprint $table) {
             $table->dropColumn('descricao'); // Remove a coluna descricao
-        });
+        });        
     }
 };

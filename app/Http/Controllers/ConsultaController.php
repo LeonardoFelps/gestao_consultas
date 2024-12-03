@@ -2,198 +2,196 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\consulta;
-use App\Models\medico;
-use App\Http\Requests\StoreconsultaRequest;
-use App\Http\Requests\UpdateconsultaRequest;
+use App\Models\Consulta;
+use App\Models\Medico;
 use Illuminate\Http\Request;
 
 class ConsultaController extends Controller
 {
-
-    public function __construct(Medico $medico) {
+    /**
+     * Construtor da classe.
+     * 
+     * @param Medico $medico Instância do modelo Medico injetada pelo Laravel.
+     * 
+     * Decisão: Usar injeção de dependência para facilitar o acesso ao modelo Medico.
+     */
+    public function __construct(Medico $medico)
+    {
         $this->medico = $medico;
     }
 
     /**
-     * Display a listing of the resource.
+     * Exibe uma lista de consultas.
+     *
+     * @param Request $request Objeto contendo os dados da requisição.
+     * @return \Illuminate\View\View Retorna a view com as consultas filtradas e paginadas.
+     * 
+     * Decisão: Adotar filtros dinâmicos para facilitar a busca por paciente ou médico,
+     * além de utilizar paginação para melhorar a performance em listas grandes.
      */
     public function index(Request $request)
     {
-        $consultas = Consulta::query();
+        $consultas = Consulta::query()
+            ->when($request->paciente, function ($query, $paciente) {
+                $query->where('paciente', 'like', '%' . $paciente . '%');
+            })
+            ->when($request->medico, function ($query, $medico) {
+                $query->where('medico', 'like', '%' . $medico . '%');
+            })
+            ->paginate(5);
 
-    // Filtro por paciente
-    if ($request->has('paciente') && !empty($request->paciente)) {
-        $consultas->where('paciente', 'like', '%' . $request->paciente . '%');
+        return view('consultas.index', compact('consultas'));
     }
-
-    // Filtro por médico
-    if ($request->has('medico') && !empty($request->medico)) {
-        $consultas->where('medico', 'like', '%' . $request->medico . '%');
-    }
-
-    // Paginação
-    $consultas = $consultas->paginate(5);
-
-    return view('consultas.index', compact('consultas'));
-    }
-    
-
 
     /**
-     * Show the form for creating a new resource.
+     * Exibe o formulário para criar uma nova consulta.
+     *
+     * @return \Illuminate\View\View Retorna a view para criação de consultas.
+     * 
+     * Decisão: Ordenar médicos por especialização para melhorar a usabilidade no formulário.
      */
     public function create()
     {
-        //
-
         $medicos = $this->medico->orderBy('especializacao')->get();
         return view('consultas.create-edit', ['medicos' => $medicos]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Armazena uma nova consulta no banco de dados.
+     *
+     * @param Request $request Objeto contendo os dados enviados pelo usuário.
+     * @return \Illuminate\Http\RedirectResponse Redireciona com mensagem de sucesso ou erro.
+     * 
+     * Decisão: Separar a validação e a verificação de conflito em métodos auxiliares
+     * para garantir reutilização e organização.
      */
+    public function store(Request $request)
+    {
+        $this->validateConsulta($request);
 
-     public function store(Request $request)
-     {
-        $regras = [
-            'paciente' => 'required|string|min:3|max:255',
-            'medico' => 'required|string',
-            'dataehora' => 'required|date',
-        ];
+        if ($this->verificarConflitoConsulta($request->medico, $request->dataehora)) {
+            return redirect()->back()
+                ->with('error', 'Já existe uma consulta marcada para este médico neste horário.')
+                ->withInput();
+        }
 
-        $feedback = [
-            'required' => 'O campo :attribute é obrigatório',
-            'string' => 'O campo :attribute deve ser um texto',
-            'max' => 'O campo :attribute deve ser conter no máximo 255 caracteres',
-            'min' => 'O campo :attribute deve ser conter no mínimo 3 caracteres'
-        ];
+        Consulta::create($request->only(['paciente', 'medico', 'dataehora', 'descricao']));
 
-        $request->validate($regras, $feedback);
-
-
-         // Verificar se já existe uma consulta com o mesmo médico no mesmo horário
-         $consultaExistente = Consulta::where('medico', $request->medico)
-             ->where('dataehora', $request->dataehora)
-             ->first(); // Retorna o primeiro registro encontrado
-     
-         // Se uma consulta já existir, retornar erro ou mensagem
-         if ($consultaExistente) {
-             return redirect()->back()->with('error', 'Já existe uma consulta marcada para este médico neste horário.')->withInput();
-         }
-     
-         // Caso não exista consulta, cria uma nova consulta
-         $consulta = new Consulta();
-         $consulta->paciente = $request->paciente;
-         $consulta->medico = $request->medico;
-         $consulta->dataehora = $request->dataehora;
-         $consulta->descricao = $request->descricao;
-     
-         // Salvar no banco de dados
-         $consulta->save();
-     
-         // Retornar uma resposta de sucesso
-         return redirect()->route('consulta.home')->with('success', 'Consulta agendada com sucesso!');
-     }
-     
-
+        return redirect()->route('consulta.home')->with('success', 'Consulta agendada com sucesso!');
+    }
 
     /**
-     * Display the specified resource.
+     * Gera relatórios de consultas agrupados por paciente, médico e data.
+     *
+     * @return \Illuminate\View\View Retorna a view com os relatórios gerados.
      */
-    public function show(Consulta $consulta)
+    public function show()
     {
-        $agendamentosPorPacienteEMedico = Consulta::select(Consulta::raw('DATE(dataehora) as dia'), 'paciente', 'medico', Consulta::raw('count(*) as total'))
-        ->groupBy(Consulta::raw('DATE(dataehora)'), 'paciente', 'medico')
-        ->orderBy(Consulta::raw('DATE(dataehora)'), 'asc')
-        ->get();
+        $agendamentosPorPacienteEMedico = Consulta::selectRaw('DATE(dataehora) as dia, paciente, medico, count(*) as total')
+            ->groupByRaw('DATE(dataehora), paciente, medico')
+            ->orderByRaw('DATE(dataehora) ASC')
+            ->get();
 
-        $agendamentosPorDia = Consulta::select(Consulta::raw('DATE(dataehora) as dia'), Consulta::raw('count(*) as total'))
-        ->groupBy(Consulta::raw('DATE(dataehora)'))
-        ->orderBy(Consulta::raw('DATE(dataehora)'), 'asc')
-        ->get();
+        $agendamentosPorDia = Consulta::selectRaw('DATE(dataehora) as dia, count(*) as total')
+            ->groupByRaw('DATE(dataehora)')
+            ->orderByRaw('DATE(dataehora) ASC')
+            ->get();
 
-        // Retorna a view com os dados para o Blade
         return view('consultas.relatorio', [
             'agendamentosPorPacienteEMedico' => $agendamentosPorPacienteEMedico,
             'agendamentosPorDia' => $agendamentosPorDia,
         ]);
-        
     }
-    
-
 
     /**
-     * Show the form for editing the specified resource.
+     * Exibe o formulário para editar uma consulta.
+     *
+     * @param int $id ID da consulta a ser editada.
+     * @return \Illuminate\View\View Retorna a view de edição com os dados carregados.
      */
     public function edit($id)
     {
-        $consulta = new Consulta();
-        // Buscar a consulta no banco
         $consulta = Consulta::findOrFail($id);
-
-        // Buscar os médicos (ou outros dados necessários)
         $medicos = Medico::all();
 
-        // Retornar a view com os dados
         return view('consultas.create-edit', compact('consulta', 'medicos'));
     }
 
-
     /**
-     * Update the specified resource in storage.
+     * Atualiza uma consulta existente.
+     *
+     * @param Request $request Objeto contendo os dados enviados pelo usuário.
+     * @param int $id ID da consulta a ser atualizada.
+     * @return \Illuminate\Http\RedirectResponse Redireciona com mensagem de sucesso ou erro.
+     * 
+     * Decisão: Reutilizar os métodos de validação e verificação de conflito do store.
      */
     public function update(Request $request, $id)
     {
-        // Definindo as regras de validação
-        $regras = [
-            'paciente' => 'required|string|min:3|max:255',
-            'medico' => 'required|string',
-            'dataehora' => 'required|date',
-            'descricao' => 'string|nullable'
-        ];
+        $this->validateConsulta($request);
 
-        // Definindo mensagens de feedback
-        $feedback = [
-            'required' => 'O campo :attribute é obrigatório',
-            'string' => 'O campo :attribute deve ser um texto',
-            'max' => 'O campo :attribute deve conter no máximo 255 caracteres',
-            'min' => 'O campo :attribute deve conter no mínimo 3 caracteres'
-        ];
-
-        // Validar os dados de entrada
-        $validated = $request->validate($regras, $feedback);
-
-        // Verificar se já existe uma consulta com o mesmo médico no mesmo horário, ignorando a própria consulta
-        $consultaExistente = Consulta::where('medico', $request->medico)
-            ->where('dataehora', $request->dataehora)
-            ->where('id', '!=', $id) // Ignora a própria consulta
-            ->first(); // Retorna a primeira consulta encontrada
-
-        // Se uma consulta já existir, retornar erro
-        if ($consultaExistente) {
-            return redirect()->back()->with('error', 'Já existe uma consulta marcada para este médico neste horário.')->withInput();
+        if ($this->verificarConflitoConsulta($request->medico, $request->dataehora, $id)) {
+            return redirect()->back()
+                ->with('error', 'Já existe uma consulta marcada para este médico neste horário.')
+                ->withInput();
         }
 
-        // Atualizar a consulta no banco de dados
         $consulta = Consulta::findOrFail($id);
-        $consulta->update($validated);
+        $consulta->update($request->only(['paciente', 'medico', 'dataehora', 'descricao']));
 
-        // Retornar com sucesso
         return redirect()->route('consulta.home')->with('success', 'Consulta atualizada com sucesso!');
     }
 
-
     /**
-     * Remove the specified resource from storage.
+     * Remove uma consulta do banco de dados.
+     *
+     * @param int $id ID da consulta a ser removida.
+     * @return \Illuminate\Http\RedirectResponse Redireciona com mensagem de sucesso.
      */
     public function destroy($id)
     {
-        $consulta = Consulta::findOrFail($id); // Encontra a consulta pelo ID ou retorna 404
-    
-        $consulta->delete(); // Exclui a consulta
-    
+        $consulta = Consulta::findOrFail($id);
+        $consulta->delete();
+
         return redirect()->route('consulta.home')->with('success', 'Consulta excluída com sucesso.');
+    }
+
+    /**
+     * Valida os dados enviados na requisição.
+     *
+     * @param Request $request Dados da requisição.
+     */
+    private function validateConsulta(Request $request)
+    {
+        $request->validate([
+            'paciente' => 'required|string|min:3|max:255',
+            'medico' => 'required|string',
+            'dataehora' => 'required|date',
+        ], [
+            'required' => 'O campo :attribute é obrigatório',
+            'string' => 'O campo :attribute deve ser um texto',
+            'max' => 'O campo :attribute deve conter no máximo 255 caracteres',
+            'min' => 'O campo :attribute deve conter no mínimo 3 caracteres',
+        ]);
+    }
+
+    /**
+     * Verifica se existe conflito de consulta no mesmo horário para o mesmo médico.
+     *
+     * @param string $medico Nome do médico.
+     * @param string $dataehora Data e hora da consulta.
+     * @param int|null $ignoreId ID da consulta a ser ignorada (para edição).
+     * @return bool Retorna verdadeiro se houver conflito.
+     */
+    private function verificarConflitoConsulta($medico, $dataehora, $ignoreId = null)
+    {
+        $query = Consulta::where('medico', $medico)
+            ->where('dataehora', $dataehora);
+
+        if ($ignoreId) {
+            $query->where('id', '!=', $ignoreId);
+        }
+
+        return $query->exists();
     }
 }

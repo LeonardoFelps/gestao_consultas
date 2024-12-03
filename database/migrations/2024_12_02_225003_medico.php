@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('medicos', function (Blueprint $table) {
-            $table->id();
-            $table->string('nome');
-            $table->string('especializacao');
-            $table->timestamps();
+            $table->id(); // Cria uma coluna ID, que é a chave primária e autoincrementável.
+            $table->string('nome'); // Cria uma coluna 'nome' para armazenar o nome do médico.
+            $table->string('especializacao'); // Cria uma coluna 'especializacao' para armazenar a especialização do médico.
+            $table->timestamps(); // Cria as colunas 'created_at' e 'updated_at' para gerenciar as datas de criação e atualização.
         });
+        
     }
 
     /**
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('medicos'); // Remove a tabela 'medicos' se ela existir.
     }
 };
