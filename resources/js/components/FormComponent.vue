@@ -19,32 +19,32 @@
   
         <!-- Campo: Médico -->
         <div class="form-group">
-        <label for="medico">Selecione o Médico:</label>
+        <label for="medico">Selecione o(a) Médico(a):</label>
         <select id="medico" v-model="formData.medico" required>
-            <option value="" disabled>Selecione um médico</option>
-            <option v-for="medico in medicos" :key="medico" :value="medico">
-            {{ medico }}
+            <option value="" disabled>Selecione um(a) médico(a)</option>
+            <option v-for="medico in medicos" :key="medico" :value="medico.nome">
+              {{ medico.especializacao }} - {{ medico.nome }}
             </option>
         </select>
         </div>
   
         <!-- Campo: Data e Hora -->
         <div class="form-group">
-          <label for="dataHora">Data e Hora</label>
+          <label for="dataehora">Data e Hora</label>
           <input
             type="datetime-local"
-            id="dataHora"
-            v-model="formData.dataHora"
+            id="dataehora"
+            v-model="formData.dataehora"
             required
           />
         </div>
   
         <!-- Campo: Observações -->
         <div class="form-group">
-          <label for="observacoes">Observações</label>
+          <label for="descricao">Observações</label>
           <textarea
-            id="observacoes"
-            v-model="formData.observacoes"
+            id="descricao"
+            v-model="formData.descricao"
             placeholder="Digite observações (opcional)"
           ></textarea>
         </div>
@@ -81,8 +81,8 @@
         formData: {
           paciente: this.initialData.paciente || "",
           medico: this.initialData.medico || "",
-          dataHora: this.initialData.dataHora || "",
-          observacoes: this.initialData.observacoes || "",
+          dataehora: this.initialData.dataehora || "",
+          descricao: this.initialData.descricao || "",
         },
       };
     },
@@ -126,7 +126,7 @@
           } else{
             console.log('Mensagem retornada:', data.message);
             // Exibir uma mensagem de sucesso
-            alert('Horário indisponível. Por favor selecione outro!');
+            alert(data.message);
           }
 
         } catch (error) {

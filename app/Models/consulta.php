@@ -9,4 +9,13 @@ class consulta extends Model
 {
     /** @use HasFactory<\Database\Factories\ConsultaFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'medico',
+        'paciente',
+        'dataehora',
+        'descricao'
+        
+    ];
+
 }
