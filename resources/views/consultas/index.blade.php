@@ -76,7 +76,7 @@
                                 <form method="POST" action="{{ route('consulta.destroy', $consulta->id) }}" style="display: inline;">
                                     @method('DELETE') <!-- Método HTTP DELETE -->
                                     @csrf <!-- Proteção contra ataques CSRF -->
-                                    <button type="submit" class="btn btn-danger">Excluir</button>
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Você tem certeza que deseja excluir esta consulta?')">Excluir</button>
                                 </form>
                             </td>
                         </tr>

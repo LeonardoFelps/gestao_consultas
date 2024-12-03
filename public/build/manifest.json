@@ -1,9 +1,17 @@
 {
+  "resources/css/estilo-basico.css": {
+    "file": "assets/estilo-basico-CoUYG7mP.css",
+    "src": "resources/css/estilo-basico.css",
+    "isEntry": true
+  },
   "resources/js/app.js": {
-    "file": "assets/app-BkO__yq_.js",
+    "file": "assets/app-DGm6M6s0.js",
     "name": "app",
     "src": "resources/js/app.js",
-    "isEntry": true
+    "isEntry": true,
+    "css": [
+      "assets/app-CHggD2XA.css"
+    ]
   },
   "resources/sass/app.scss": {
     "file": "assets/app-BaVMVknW.css",
