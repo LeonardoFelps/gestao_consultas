@@ -24,6 +24,9 @@ app.component('index-component', IndexComponent);
 import FormComponent from './components/FormComponent.vue';
 app.component('form-component', FormComponent);
 
+import ModalDescricaoComponent from './components/ModalDescricaoComponent.vue';
+app.component('modal-descricao-component', ModalDescricaoComponent);
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
