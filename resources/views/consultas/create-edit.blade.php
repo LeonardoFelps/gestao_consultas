@@ -2,9 +2,20 @@
 
 @section('conteudo')
 <div class="consulta-form">
+    <!-- Exibe mensagem de erro, se houver -->
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
     <h2>@if(isset($consulta)) Editar Consulta @else Adicionar Consulta @endif</h2>
 
-    <form action="{{ isset($consulta) ? route('consulta.update', $consulta->id) : route('store') }}" method="POST">
+    <form action="{{ isset($consulta) ? route('consulta.update', $consulta->id) : route('consulta.store') }}" method="POST">
         @csrf
         @if(isset($consulta))
             @method('PUT')
@@ -58,7 +69,7 @@
             <button type="submit" class="btn btn-primary">
                 @if(isset($consulta)) Salvar Alterações @else Adicionar Consulta @endif
             </button>
-            <a href="{{ route('home') }}" class="btn btn-secondary">Cancelar</a>
+            <a href="{{ route('consulta.home') }}" class="btn btn-secondary">Cancelar</a>
         </div>
     </form>
 </div>

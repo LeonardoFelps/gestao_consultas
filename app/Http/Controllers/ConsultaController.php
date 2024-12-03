@@ -36,7 +36,7 @@ class ConsultaController extends Controller
         //
 
         $medicos = $this->medico->orderBy('especializacao')->get();
-        return view('consultas.create', ['medicos' => $medicos]);
+        return view('consultas.create-edit', ['medicos' => $medicos]);
     }
 
     /**
@@ -45,6 +45,22 @@ class ConsultaController extends Controller
 
      public function store(Request $request)
      {
+        $regras = [
+            'paciente' => 'required|string|min:3|max:255',
+            'medico' => 'required|string',
+            'dataehora' => 'required|date',
+        ];
+
+        $feedback = [
+            'required' => 'O campo :attribute é obrigatório',
+            'string' => 'O campo :attribute deve ser um texto',
+            'max' => 'O campo :attribute deve ser conter no máximo 255 caracteres',
+            'min' => 'O campo :attribute deve ser conter no mínimo 3 caracteres'
+        ];
+
+        $request->validate($regras, $feedback);
+
+
          // Verificar se já existe uma consulta com o mesmo médico no mesmo horário
          $consultaExistente = Consulta::where('medico', $request->medico)
              ->where('dataehora', $request->dataehora)
@@ -52,7 +68,7 @@ class ConsultaController extends Controller
      
          // Se uma consulta já existir, retornar erro ou mensagem
          if ($consultaExistente) {
-             return redirect()->back()->with('error', 'Já existe uma consulta marcada para este médico neste horário.');
+             return redirect()->back()->with('error', 'Já existe uma consulta marcada para este médico neste horário.')->withInput();
          }
      
          // Caso não exista consulta, cria uma nova consulta
@@ -66,7 +82,7 @@ class ConsultaController extends Controller
          $consulta->save();
      
          // Retornar uma resposta de sucesso
-         return redirect()->route('home')->with('success', 'Consulta agendada com sucesso!');
+         return redirect()->route('consulta.home')->with('success', 'Consulta agendada com sucesso!');
      }
      
 
@@ -82,17 +98,58 @@ class ConsultaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(consulta $consulta)
+    public function edit($id)
     {
-        //
+        $consulta = new Consulta();
+        // Buscar a consulta no banco
+        $consulta = Consulta::findOrFail($id);
+
+        // Buscar os médicos (ou outros dados necessários)
+        $medicos = Medico::all();
+
+        // Retornar a view com os dados
+        return view('consultas.create-edit', compact('consulta', 'medicos'));
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateconsultaRequest $request, consulta $consulta)
+    public function update(Request $request, $id)
     {
-        //
+        // Validar os dados
+        $regras = [
+            'paciente' => 'required|string|min:3|max:255',
+            'medico' => 'required|string',
+            'dataehora' => 'required|date',
+        ];
+
+        $feedback = [
+            'required' => 'O campo :attribute é obrigatório',
+            'string' => 'O campo :attribute deve ser um texto',
+            'max' => 'O campo :attribute deve ser conter no máximo 255 caracteres',
+            'min' => 'O campo :attribute deve ser conter no mínimo 3 caracteres'
+        ];
+
+        $validated = $request->validate($regras, $feedback);
+
+        // Verificar se já existe uma consulta com o mesmo médico no mesmo horário
+        $consultaExistente = Consulta::where('medico', $request->medico)
+        ->where('dataehora', $request->dataehora)
+        ->first(); // Retorna o primeiro registro encontrado
+
+        // Se uma consulta já existir, retornar erro ou mensagem
+        if ($consultaExistente) {
+            return redirect()->back()->with('error', 'Já existe uma consulta marcada para este médico neste horário.')->withInput();
+        }
+
+        // Atualizar a consulta no banco
+        $consulta = Consulta::findOrFail($id);
+        $consulta->update($validated);
+
+        // Redirecionar ou retornar a view com sucesso
+        return redirect()->route('consulta.edit', $consulta->id)
+                        ->with('success', 'Consulta atualizada com sucesso!');
     }
 
     /**
